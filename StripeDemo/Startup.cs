@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Stripe;
+using StripeDemo.Services;
 
 namespace StripeDemo
 {
@@ -24,11 +27,14 @@ namespace StripeDemo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.Configure<StripeSettings>(Configuration.GetSection("Stripe"));// Get the stripe configurations form appsettings
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Get the Secret key
+            StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["SecretKey"];
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

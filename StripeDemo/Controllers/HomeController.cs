@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Stripe;
 using StripeDemo.Models;
 
 namespace StripeDemo.Controllers
@@ -19,7 +17,46 @@ namespace StripeDemo.Controllers
         }
 
         public IActionResult Index()
+        {            
+            return View();
+        }
+
+        //Stripe start here
+        public IActionResult charge(string stripeEmail, string stripeToken)
         {
+            var customers = new CustomerService();
+            var charges = new ChargeService();
+
+            var customer = customers.Create(new CustomerCreateOptions 
+            {
+              Email = stripeEmail,
+              Source = stripeToken
+            });
+
+            var charge = charges.Create(new ChargeCreateOptions
+            {
+                Amount = 500,
+                Description = "Test Payment",
+                Currency = "usd",
+                Customer = customer.Id,
+                ReceiptEmail = stripeEmail,
+                Metadata = new Dictionary<string, string>() 
+                {
+                    { "OrderId","123" },
+                    { "PostCode","243"}
+                }
+            });
+
+            if (charge.Status == "Succeeded")
+            {
+                string BalanceTransId = charge.BalanceTransactionId;
+                return View();
+            }
+            else
+            {
+
+            }
+
             return View();
         }
 
